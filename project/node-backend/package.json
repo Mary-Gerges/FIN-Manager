@@ -1,0 +1,13 @@
+{
+  "name": "financeiq-node-backend",
+  "version": "1.0.0",
+  "description": "Node.js backend API for FinanceIQ authentication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["financeiq", "node", "backend", "auth"],
+  "author": "",
+  "license": "MIT"
+}

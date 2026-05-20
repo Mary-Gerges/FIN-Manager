@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "Finance Tracker API",
+    "description": "Complete Personal Finance & Expense Tracker Backend API\n\nBase URL: http://localhost:8000/api\n\nAuthentication: Bearer Token (Sanctum)\nAdd header: Authorization: Bearer {your_token}",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "token",    "value": "" }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\",\n  \"password_confirmation\": \"Password123\",\n  \"currency\": \"USD\",\n  \"timezone\": \"America/New_York\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "const res = pm.response.json();",
+                "if (res.data && res.data.access_token) {",
+                "  pm.collectionVariables.set('token', res.data.access_token);",
+                "}"
+              ]
+            }
+          }],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/auth/profile",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated\",\n  \"currency\": \"EUR\",\n  \"budget_alerts\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/logout",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Data",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/notifications?page=1",
+              "query": [{ "key": "page", "value": "1" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 Transactions",
+      "item": [
+        {
+          "name": "List Transactions",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/transactions?type=expense&month=1&year=2025&per_page=15&sort_by=transaction_date&sort_dir=desc",
+              "query": [
+                { "key": "type",       "value": "expense",          "description": "income|expense" },
+                { "key": "month",      "value": "1" },
+                { "key": "year",       "value": "2025" },
+                { "key": "per_page",   "value": "15" },
+                { "key": "sort_by",    "value": "transaction_date" },
+                { "key": "sort_dir",   "value": "desc" },
+                { "key": "search",     "value": "",   "disabled": true },
+                { "key": "category_id","value": "",   "disabled": true },
+                { "key": "from_date",  "value": "",   "disabled": true },
+                { "key": "to_date",    "value": "",   "disabled": true },
+                { "key": "min_amount", "value": "",   "disabled": true },
+                { "key": "max_amount", "value": "",   "disabled": true }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Add Expense",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/transactions",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"expense\",\n  \"amount\": 85.50,\n  \"category_id\": 1,\n  \"description\": \"Weekly Groceries\",\n  \"notes\": \"Whole Foods Market\",\n  \"transaction_date\": \"2025-01-15\",\n  \"tags\": [\"essential\", \"food\"]\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Income",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/transactions",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"income\",\n  \"amount\": 5000.00,\n  \"category_id\": 12,\n  \"description\": \"Monthly Salary\",\n  \"transaction_date\": \"2025-01-01\",\n  \"is_recurring\": true,\n  \"recurring_interval\": \"monthly\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Transaction",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/transactions/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 92.00,\n  \"description\": \"Weekly Groceries (updated)\",\n  \"type\": \"expense\",\n  \"category_id\": 1,\n  \"transaction_date\": \"2025-01-15\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Transaction",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/transactions/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Summary (This Month)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/transactions/summary?month=1&year=2025",
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year",  "value": "2025" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Bulk Delete",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/transactions/bulk",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"ids\": [1, 2, 3] }"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎯 Budgets",
+      "item": [
+        {
+          "name": "Get Budgets (with spending)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/budgets?month=1&year=2025",
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year",  "value": "2025" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Set Budget",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/budgets",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 1,\n  \"amount\": 500.00,\n  \"month\": 1,\n  \"year\": 2025,\n  \"alert_threshold\": 80\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Budget Alerts",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/budgets/alerts",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Reports",
+      "item": [
+        {
+          "name": "Monthly Report",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reports/monthly?month=1&year=2025",
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year",  "value": "2025" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Income vs Expense Chart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reports/chart/income-vs-expense?months=6",
+              "query": [{ "key": "months", "value": "6" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Expense by Category Chart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reports/chart/expense-by-category?month=1&year=2025",
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year",  "value": "2025" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Daily Breakdown Chart",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reports/chart/daily?month=1&year=2025",
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year",  "value": "2025" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Export CSV",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/reports/export/csv?month=1&year=2025",
+              "query": [
+                { "key": "month", "value": "1" },
+                { "key": "year",  "value": "2025" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧠 Insights",
+      "item": [
+        {
+          "name": "Get AI Insights",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/insights",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏷️ Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/categories?type=expense",
+              "query": [{ "key": "type", "value": "expense", "description": "income|expense|all" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Create Custom Category",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pet Care\",\n  \"type\": \"expense\",\n  \"icon\": \"paw-print\",\n  \"color\": \"#f97316\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

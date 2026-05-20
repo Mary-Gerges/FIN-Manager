@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceIQ – Personal Finance Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+<body>
+
+<!-- ============================================================
+     AUTH SCREEN
+============================================================ -->
+<div id="auth-screen">
+  <div class="auth-bg-shape shape-one"></div>
+  <div class="auth-bg-shape shape-two"></div>
+
+  <div class="auth-shell">
+    <section class="auth-hero">
+      <div class="auth-brand">
+        <div class="logo-icon">💰</div>
+        <span>FinanceIQ</span>
+      </div>
+      <h2>Manage your money with confidence.</h2>
+      <p>Track income, expenses, budgets, reports, and insights from one clean dashboard.</p>
+      <div class="auth-benefits">
+        <div class="auth-benefit"><span>✓</span> Secure account access</div>
+        <div class="auth-benefit"><span>✓</span> Smart financial tracking</div>
+        <div class="auth-benefit"><span>✓</span> Clean reports and insights</div>
+      </div>
+    </section>
+
+    <section class="auth-box">
+      <div class="auth-logo">
+        <div class="logo-icon">💰</div>
+        <h1>FinanceIQ</h1>
+      </div>
+      <div class="auth-copy">
+        <h2 id="auth-heading">Welcome back</h2>
+        <p id="auth-subtitle">Sign in to continue to your finance dashboard.</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist" aria-label="Authentication tabs">
+        <button class="auth-tab active" id="login-tab" onclick="switchAuthTab('login')" type="button">Login</button>
+        <button class="auth-tab" id="signup-tab" onclick="switchAuthTab('signup')" type="button">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-form active" id="login-form">
+        <div class="auth-error" id="login-error"></div>
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="login-pass">Password</label>
+          <div class="password-wrap input-icon-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password" />
+            <button type="button" class="password-toggle" onclick="togglePassword('login-pass', this)" aria-label="Show password">👁️</button>
+          </div>
+        </div>
+        <div class="auth-options">
+          <label class="remember-option"><input type="checkbox" checked /> Remember me</label>
+          <button type="button" class="link-btn" onclick="showAuthError('login-error', 'Password reset is not enabled in this demo.')">Forgot password?</button>
+        </div>
+        <button class="btn btn-primary auth-submit" onclick="handleLogin()" type="button">Login →</button>
+        <p class="auth-switch-text">Don’t have an account? <button type="button" onclick="switchAuthTab('signup')">Create one</button></p>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="auth-form" id="signup-form">
+        <div class="auth-error" id="signup-error"></div>
+        <div class="form-group">
+          <label for="signup-name">Full Name</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="signup-name" placeholder="John Doe" autocomplete="name" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email Address</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="signup-email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="signup-pass">Password</label>
+          <div class="password-wrap input-icon-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="signup-pass" placeholder="Minimum 6 characters" autocomplete="new-password" />
+            <button type="button" class="password-toggle" onclick="togglePassword('signup-pass', this)" aria-label="Show password">👁️</button>
+          </div>
+          <small class="field-hint">Use at least 6 characters.</small>
+        </div>
+        <button class="btn btn-primary auth-submit" onclick="handleSignup()" type="button">Create Account →</button>
+        <p class="auth-switch-text">Already have an account? <button type="button" onclick="switchAuthTab('login')">Login</button></p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN APP
+============================================================ -->
+<div id="app">
+  <div class="layout">
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">💰</div>
+          <span>FinanceIQ</span>
+        </div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar">J</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-display">John Doe</div>
+          <div class="user-email" id="user-email-display">john@example.com</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <button class="nav-item active" onclick="navigate('dashboard')">
+            <span class="nav-icon">📊</span> Dashboard
+          </button>
+          <button class="nav-item" onclick="navigate('transactions')">
+            <span class="nav-icon">💳</span> Transactions
+            <span class="nav-badge" id="txn-badge" style="display:none">0</span>
+          </button>
+          <button class="nav-item" onclick="navigate('budget')">
+            <span class="nav-icon">🎯</span> Budget
+          </button>
+          <button class="nav-item" onclick="navigate('reports')">
+            <span class="nav-icon">📈</span> Reports
+          </button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Insights</div>
+          <button class="nav-item" onclick="navigate('insights')">
+            <span class="nav-icon">🧠</span> AI Insights
+          </button>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Account</div>
+          <button class="nav-item" onclick="navigate('settings')">
+            <span class="nav-icon">⚙️</span> Settings
+          </button>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="logout()" style="color:#f87171;">
+          <span class="nav-icon">🚪</span> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN ===== -->
+    <main class="main">
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+          <h2 class="page-title" id="page-title">Dashboard</h2>
+        </div>
+        <div class="topbar-right">
+          <button class="icon-btn" onclick="toggleTheme()" title="Toggle Dark Mode" id="theme-btn">🌙</button>
+          <button class="icon-btn" onclick="toggleNotifPanel()" title="Notifications">
+            🔔 <span class="notif-dot" id="notif-dot"></span>
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ Add</button>
+        </div>
+      </div>
+
+      <!-- Notifications Panel -->
+      <div class="notif-panel" id="notif-panel">
+        <div class="notif-panel-header">
+          <span>Notifications</span>
+          <button class="btn btn-ghost btn-sm" onclick="clearNotifs()">Clear all</button>
+        </div>
+        <div id="notif-list"></div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <div class="page active" id="page-dashboard">
+          <div class="cards-grid">
+            <div class="summary-card balance">
+              <div class="card-header">
+                <span class="card-label">Total Balance</span>
+                <div class="card-icon purple">💰</div>
+              </div>
+              <div class="card-amount" id="dash-balance">\$0.00</div>
+              <div class="card-change"><span id="dash-balance-change"></span></div>
+            </div>
+            <div class="summary-card income">
+              <div class="card-header">
+                <span class="card-label">Total Income</span>
+                <div class="card-icon green">📥</div>
+              </div>
+              <div class="card-amount positive" id="dash-income">\$0.00</div>
+              <div class="card-change"><span id="dash-income-change"></span></div>
+            </div>
+            <div class="summary-card expense">
+              <div class="card-header">
+                <span class="card-label">Total Expenses</span>
+                <div class="card-icon red">📤</div>
+              </div>
+              <div class="card-amount negative" id="dash-expense">\$0.00</div>
+              <div class="card-change"><span id="dash-expense-change"></span></div>
+            </div>
+            <div class="summary-card savings">
+              <div class="card-header">
+                <span class="card-label">Savings Rate</span>
+                <div class="card-icon yellow">🏦</div>
+              </div>
+              <div class="card-amount" id="dash-savings">0%</div>
+              <div class="card-change"><span id="dash-savings-change"></span></div>
+            </div>
+          </div>
+
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-title">
+                Income vs Expenses
+                <span class="chart-subtitle">Last 6 months</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="barChart"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">
+                Spending by Category
+                <span class="chart-subtitle">This month</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts-grid" style="grid-template-columns:1fr;">
+            <div class="chart-card">
+              <div class="chart-title">
+                Balance Trend
+                <span class="chart-subtitle">Daily balance over time</span>
+              </div>
+              <div class="chart-container">
+                <canvas id="lineChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <span class="section-title">Recent Transactions</span>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('transactions')">View All →</button>
+          </div>
+          <div class="transactions-card">
+            <div class="txn-list" id="recent-txn-list"></div>
+          </div>
+        </div>
+
+        <!-- ===== TRANSACTIONS PAGE ===== -->
+        <div class="page" id="page-transactions">
+          <div class="section-header">
+            <span class="section-title">All Transactions</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddModal()">+ New Transaction</button>
+          </div>
+          <div class="transactions-card">
+            <div class="txn-filters">
+              <input type="text" id="search-input" placeholder="🔍 Search transactions..." oninput="renderTransactions()" />
+              <select id="filter-type" onchange="renderTransactions()">
+                <option value="">All Types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+              <select id="filter-cat" onchange="renderTransactions()">
+                <option value="">All Categories</option>
+              </select>
+              <select id="filter-month" onchange="renderTransactions()">
+                <option value="">All Months</option>
+              </select>
+            </div>
+            <div class="txn-list" id="all-txn-list"></div>
+          </div>
+        </div>
+
+        <!-- ===== BUDGET PAGE ===== -->
+        <div class="page" id="page-budget">
+          <div class="section-header">
+            <span class="section-title">Monthly Budget</span>
+            <button class="btn btn-primary btn-sm" onclick="openBudgetModal()">+ Set Budget</button>
+          </div>
+          <div class="budget-grid" id="budget-grid"></div>
+        </div>
+
+        <!-- ===== REPORTS PAGE ===== -->
+        <div class="page" id="page-reports">
+          <div class="report-controls">
+            <div class="form-group">
+              <label>Month</label>
+              <select id="report-month">
+                <option value="0">January</option><option value="1">February</option>
+                <option value="2">March</option><option value="3">April</option>
+                <option value="4">May</option><option value="5">June</option>
+                <option value="6">July</option><option value="7">August</option>
+                <option value="8">September</option><option value="9">October</option>
+                <option value="10">November</option><option value="11">December</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year</label>
+              <input type="number" id="report-year" value="2025" min="2020" max="2030" style="width:90px" />
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="generateReport()">Generate</button>
+            <div class="export-btns">
+              <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
+              <button class="btn btn-ghost btn-sm" onclick="exportPDF()">⬇ PDF</button>
+            </div>
+          </div>
+          <div class="cards-grid" id="report-cards"></div>
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-title">Monthly Breakdown</div>
+              <div class="chart-container"><canvas id="reportBarChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title">Category Distribution</div>
+              <div class="chart-container"><canvas id="reportPieChart"></canvas></div>
+            </div>
+          </div>
+          <div class="transactions-card" style="margin-top:20px">
+            <div class="txn-list" id="report-txn-list"></div>
+          </div>
+        </div>
+
+        <!-- ===== INSIGHTS PAGE ===== -->
+        <div class="page" id="page-insights">
+          <div class="section-header">
+            <span class="section-title">AI-Powered Financial Insights</span>
+            <button class="btn btn-primary btn-sm" onclick="generateInsights()">🔄 Refresh</button>
+          </div>
+          <div class="insights-grid" id="insights-grid"></div>
+          <div class="chart-card" style="margin-top:0">
+            <div class="chart-title">Spending Pattern – Last 12 Weeks</div>
+            <div class="chart-container"><canvas id="insightLineChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- ===== SETTINGS PAGE ===== -->
+        <div class="page" id="page-settings">
+          <div class="settings-section">
+            <h3>👤 Profile</h3>
+            <div class="form-group">
+              <label>Display Name</label>
+              <input type="text" id="settings-name" placeholder="Your name" />
+            </div>
+            <div class="form-group">
+              <label>Currency Symbol</label>
+              <select id="settings-currency">
+                <option value="$">$ USD</option>
+                <option value="€">€ EUR</option>
+                <option value="£">£ GBP</option>
+                <option value="¥">¥ JPY</option>
+                <option value="₹">₹ INR</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="max-width:200px" onclick="saveSettings()">Save Changes</button>
+          </div>
+          <div class="settings-section">
+            <h3>🔔 Notifications</h3>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Budget Alerts</h4>
+                <p>Alert when spending exceeds 80% of budget</p>
+              </div>
+              <button class="toggle on" id="toggle-budget-alert" onclick="toggleSetting(this)"></button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Unusual Spending</h4>
+                <p>Detect and alert unusual spending patterns</p>
+              </div>
+              <button class="toggle on" id="toggle-unusual" onclick="toggleSetting(this)"></button>
+            </div>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Weekly Summary</h4>
+                <p>Receive weekly financial summary</p>
+              </div>
+              <button class="toggle" id="toggle-weekly" onclick="toggleSetting(this)"></button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>🎨 Appearance</h3>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Dark Mode</h4>
+                <p>Toggle dark/light theme</p>
+              </div>
+              <button class="toggle" id="toggle-dark" onclick="toggleThemeFromSettings()"></button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>🗑️ Data Management</h3>
+            <div class="settings-row">
+              <div class="settings-row-info">
+                <h4>Clear All Transactions</h4>
+                <p>Permanently delete all transaction data</p>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="clearAllData()">Clear Data</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /content -->
+    </main>
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- ============================================================
+     MODALS
+============================================================ -->
+<!-- Add/Edit Transaction Modal -->
+<div class="modal-overlay" id="txn-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">New Transaction</span>
+      <button class="modal-close" onclick="closeModal('txn-modal')">✕</button>
+    </div>
+    <div class="type-toggle">
+      <button class="type-btn income active" id="type-income" onclick="setType('income')">📥 Income</button>
+      <button class="type-btn expense" id="type-expense" onclick="setType('expense')">📤 Expense</button>
+    </div>
+    <div class="form-group">
+      <label>Description *</label>
+      <input type="text" id="txn-desc" placeholder="e.g. Monthly Salary" />
+    </div>
+    <div class="form-group">
+      <label>Amount *</label>
+      <input type="number" id="txn-amount" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="txn-cat"></select>
+    </div>
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" id="txn-date" />
+    </div>
+    <div class="form-group">
+      <label>Notes (optional)</label>
+      <textarea id="txn-notes" rows="2" placeholder="Additional details..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('txn-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTransaction()">Save Transaction</button>
+    </div>
+  </div>
+</div>
+
+<!-- Budget Modal -->
+<div class="modal-overlay" id="budget-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Set Monthly Budget</span>
+      <button class="modal-close" onclick="closeModal('budget-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="budget-cat"></select>
+    </div>
+    <div class="form-group">
+      <label>Monthly Budget Amount</label>
+      <input type="number" id="budget-amount" placeholder="0.00" min="0" step="0.01" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('budget-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveBudget()">Save Budget</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
+
+</body>
+</html>
